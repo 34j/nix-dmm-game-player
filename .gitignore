@@ -1,6 +1,10 @@
-/DMMGamePlayer-Setup.exe
-/README.md
-/flake.lock
-/flake.nix
-/pkgs
-/result
+# Ignore build outputs from performing a nix-build or `nix build` command
+result
+result-*
+
+# Ignore automatically generated direnv output
+.direnv
+
+# Prettier
+.cache
+*.exe
