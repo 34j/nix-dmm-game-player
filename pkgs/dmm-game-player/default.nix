@@ -47,7 +47,10 @@ let
     name = pname;
 
     runtimeInputs = [
-      wineWowPackages.waylandFull
+      # https://github.com/NixOS/nixpkgs/blob/e060786c7bca0404f2a5ba35ffaa4b9b93bc48a6/pkgs/top-level/wine-packages.nix#L57
+      # "full" is larger than "waylandFull"
+      wineWowPackages.full
+      wineWowPackages.fonts
       winetricks
     ];
 
@@ -83,6 +86,7 @@ let
       run_installer() {
         printf '\e[1;33m%s\e[0m\n' "DMM Game Player: Running installer ${src}"
         wine "$installer"
+        wineserver -k
       }
 
       install_if_needed() {
