@@ -34,12 +34,12 @@ The flake exposes a single command: `dmm-games-player`.
 
 - `dmm-games-player`
   - Ensures the prefix exists, runs the installer if needed, then launches the installed app.
-- `dmm-games-player boot|build|rebuild`
-  - Initializes the Wine prefix (`wineboot`, sets Windows version), but does not start the app.
+- `dmm-games-player install`
+  - Re-runs the installer (GUI) and refreshes the stored installed exe path.
 - `dmm-games-player eval <cmd...>`
   - Runs `<cmd...>` directly (not via Wine). Note: the script currently still performs the install check before `eval`.
-- `dmm-games-player <URI>`
-  - If the first argument looks like a `dmmgameplayer:` URI, it forwards it via `wine start "<URI>"`.
+- `dmm-games-player uri <URI>`
+  - Forwards a `dmmgameplayer:` URI via `wine start "<URI>"`.
 
 ## Native browser login (URI handler)
 
@@ -49,7 +49,7 @@ The package installs a desktop entry that declares:
 
 and executes:
 
-- `dmm-games-player %u`
+- `dmm-games-player uri %u`
 
 This is the Nix equivalent of the usual non-Nix guide that registers a `.desktop` file and a wrapper script.
 
@@ -78,6 +78,7 @@ xdg-mime default dmm-games-player.desktop x-scheme-handler/dmmgameplayer
 3. From a native Linux browser, click a `dmmgameplayer:` link.
 
 - The desktop environment should launch `dmm-games-player %u`.
+- The desktop environment should launch `dmm-games-player uri %u`.
 - The script will install DMM Game Player into the Wine prefix if needed.
 - The URI is forwarded into the Windows side via `wine start`, allowing the login flow.
 
