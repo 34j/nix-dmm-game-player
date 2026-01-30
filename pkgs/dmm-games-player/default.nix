@@ -4,16 +4,16 @@
   makeDesktopItem,
   symlinkJoin,
   writeShellApplication,
-  wineWow64Packages,
+  wineWowPackages,
   winetricks,
 }:
 
 let
-  pname = "dmm-games-player";
+  pname = "dmm-game-player";
   version = "5.4.3";
 
   src = fetchurl {
-    url = "https://web.archive.org/web/20250501072014/https://dlapp-dmmgameplayer.games.dmm.com/DMMGamePlayer-Setup-5.4.3.exe";
+    url = "https://web.archive.org/web/20250501072014/https://dlapp-dmmgameplayer.game.dmm.com/DMMGamePlayer-Setup-5.4.3.exe";
     sha256 = "3454b8d36073bc63ab2107372978929273a8fbd50a5eb81395ed969749075554";
   };
 
@@ -59,9 +59,9 @@ let
       set -euo pipefail
 
       # Usage:
-      # - dmm-games-player                 : ensure installed, then launch the EXE
-      # - dmm-games-player install         : rerun the installer (GUI) and refresh exe path
-      # - dmm-games-player uri <URI>       : forward URI to Wine (native-browser login flow)
+      # - dmm-game-player                 : ensure installed, then launch the EXE
+      # - dmm-game-player install         : rerun the installer (GUI) and refresh exe path
+      # - dmm-game-player uri <URI>       : forward URI to Wine (native-browser login flow)
 
       # The wine prefix to used, may be overridden by setting $WINEPREFIX environment variable.
       export WINEPREFIX="${"$"}{WINEPREFIX:-$HOME/.nix-wine/${pname}}"
@@ -88,12 +88,12 @@ let
       }
 
       install_if_needed() {
-        # If the installed executable exists somewhere under drive_c, skip installation.
         if find "$WINEPREFIX/drive_c" -type f -iname 'DMMGamePlayer.exe' -print -quit 2>/dev/null | grep -q .; then
+          printf '\e[1;32m%s\e[0m\n' "DMM Game Player: Already installed"
           return 0
         fi
 
-        # First launch: run the installer (GUI) so login/steps can be completed manually.
+        printf '\e[1;33m%s\e[0m\n' "DMM Game Player: Not installed, running installer..."
         run_installer
       }
 
@@ -139,8 +139,9 @@ let
               shift
               "$@"
               ;;
+
             *)
-              # Launch the installed executable.
+              printf '\e[1;32m%s\e[0m\n' "DMM Game Player: Launching DMM Game Player"
               exe_path="$(find "$WINEPREFIX/drive_c" -type f -iname 'DMMGamePlayer.exe' 2>/dev/null | head -n 1 || true)"
               if [ -z "$exe_path" ]; then
                 echo "Installed DMMGamePlayer.exe not found under $WINEPREFIX/drive_c" >&2
@@ -148,8 +149,10 @@ let
               fi
               wine "$exe_path" "$@"
               ;;
+
           esac
           ;;
+
       esac
 
       # Shut down background Wine processes started by this run.
@@ -158,16 +161,16 @@ let
   };
 
   desktopItem = makeDesktopItem {
-    name = "dmm-games-player";
+    name = "dmm-game-player";
     desktopName = "DMM Game Player";
-    exec = "dmm-games-player uri %u";
+    exec = "dmm-game-player uri %u";
     type = "Application";
     terminal = false;
     mimeTypes = [ "x-scheme-handler/dmmgameplayer" ];
   };
 in
 {
-  dmm-games-player = symlinkJoin {
+  dmm-game-player = symlinkJoin {
     inherit pname version;
     paths = [
       runner
@@ -175,7 +178,7 @@ in
     ];
     meta = with lib; {
       description = "DMM Game Player (Windows app) wrapped for Wine";
-      homepage = "https://games.dmm.com/";
+      homepage = "https://game.dmm.com/";
       license = licenses.unfree;
       platforms = platforms.linux;
       mainProgram = pname;

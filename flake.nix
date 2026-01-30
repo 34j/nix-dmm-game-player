@@ -20,8 +20,8 @@
       in
       {
         packages = {
-          default = self.packages.${system}.dmm-games-player;
-          inherit (pkgs.callPackage ./pkgs/dmm-games-player { }) dmm-games-player;
+          default = self.packages.${system}.dmm-game-player;
+          inherit (pkgs.callPackage ./pkgs/dmm-game-player { }) dmm-game-player;
         };
       }
     );
