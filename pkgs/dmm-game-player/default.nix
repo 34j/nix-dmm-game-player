@@ -89,7 +89,7 @@ let
             esac
 
             # The wine prefix to used, may be overridden by setting $WINEPREFIX environment variable.
-            export WINEPREFIX="${"$"}{WINEPREFIX:-$HOME/.nix-wine/${pname}}"
+            export WINEPREFIX="${"$"}{WINEPREFIX:-$HOME/.local/share/${pname}}"
 
             # The installer is fetched by Nix and stored in /nix/store .
             installer="${src}"

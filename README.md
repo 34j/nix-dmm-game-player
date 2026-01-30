@@ -4,86 +4,72 @@ DMM Game Player (Windows app) packaged as a Nix flake and run via Wine.
 
 This flake intentionally **runs the upstream installer at first launch** (inside the Wine prefix) and then launches the installed `DMMGamePlayer.exe`.
 
-## Build
-
-This package is `unfree`, so allow it via `NIXPKGS_ALLOW_UNFREE=1` and use `--impure`.
+## Installation
 
 ```bash
-NIXPKGS_ALLOW_UNFREE=1 nix build --impure .#dmm-game-player -L
+NIXPKGS_ALLOW_UNFREE=1 nix run --impure github:34j/nix-dmm-game-player#dmm-game-player
 ```
 
-## Run
+or
 
-```bash
-NIXPKGS_ALLOW_UNFREE=1 nix run --impure .#dmm-game-player -L
+`flake.nix`:
+
+```nix
+{
+    inputs = {
+        # you should already have something like this
+        # nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+        dmm-game-player.url = "github:34j/nix-dmm-game-player";
+    };
+    # you should already have something like this
+    # outputs = {self, nixpkgs, ...}@inputs: {
+    #     nixosConfigurations = {
+    #         "..." = nixpkgs.lib.nixosSystem{
+    #             specialArgs = { inherit inputs; };
+    #         };
+    #     };
+    #     homeConfigurations = {
+    #         "...@..." = home-manager.lib.homeManagerConfiguration {
+    #             extraSpecialArgs = { inherit inputs; };
+    #         };
+    #     };
+    # };
+}
+
 ```
 
-By default, the Wine prefix is:
+`NixOS`:
 
-- `~/.nix-wine/dmm-game-player-5.4.3`
-
-Override it (recommended if managing multiple prefixes):
-
-```bash
-WINEPREFIX="$HOME/.wine-dmm" NIXPKGS_ALLOW_UNFREE=1 nix run --impure .#dmm-game-player -L
+```nix
+{ inputs, pkgs, ... }:
+{
+  environment.systemPackages = [ inputs.dmm-game-player.packages.${pkgs.stdenv.hostPlatform.system}.dmm-game-player ];
+}
 ```
 
-## CLI options
+or `Home Manager`:
 
-The flake exposes a single command: `dmm-game-player`.
-
-- `dmm-game-player`
-  - Ensures the prefix exists, runs the installer if needed, then launches the installed app.
-- `dmm-game-player install`
-  - Re-runs the installer (GUI) and refreshes the stored installed exe path.
-- `dmm-game-player eval <cmd...>`
-  - Runs `<cmd...>` directly (not via Wine). Note: the script currently still performs the install check before `eval`.
-- `dmm-game-player uri <URI>`
-  - Forwards a `dmmgameplayer:` URI via `wine start "<URI>"`.
-
-## Native browser login (URI handler)
-
-The package installs a desktop entry that declares:
-
-- `MimeType=x-scheme-handler/dmmgameplayer;`
-
-and executes:
-
-- `dmm-game-player uri %u`
-
-This is the Nix equivalent of the usual non-Nix guide that registers a `.desktop` file and a wrapper script.
-
-### How to use
-
-1. Ensure the `.desktop` entry is visible to your session.
-
-For ad-hoc usage:
-
-```bash
-NIXPKGS_ALLOW_UNFREE=1 nix build --impure .#dmm-game-player
+```nix
+{ inputs, pkgs, ... }:
+{
+  home.packages = [ inputs.dmm-game-player.packages.${pkgs.stdenv.hostPlatform.system}.dmm-game-player ];
+}
 ```
 
-For persistent install into your user profile:
+## Usage
 
-```bash
-NIXPKGS_ALLOW_UNFREE=1 nix profile install --impure .#dmm-game-player
+```shell
+dmm-game-player
 ```
 
-2. Set it as the default handler for the scheme (optional, depends on desktop environment):
+This will:
 
-```bash
-xdg-mime default dmm-game-player.desktop x-scheme-handler/dmmgameplayer
+- Creates a Wine prefix in `~/.local/share/dmm-game-player`, which could be overridden by setting the `$WINEPREFIX` environment variable.
+- Install DMM Game Player if no `DMMGamePlayer.exe` is found in the Wine prefix.
+- Launch the installed `DMMGamePlayer.exe`.
+
+## Advanced usage
+
+```shell
+dmm-game-player --help
 ```
-
-3. From a native Linux browser, click a `dmmgameplayer:` link.
-
-- The desktop environment should launch `dmm-game-player %u`.
-- The desktop environment should launch `dmm-game-player uri %u`.
-- The script will install DMM Game Player into the Wine prefix if needed.
-- The URI is forwarded into the Windows side via `wine start`, allowing the login flow.
-
-## Notes
-
-- Wine package used: `wineWow64Packages.waylandFull`.
-- Installer used: archived `DMMGamePlayer-Setup-5.4.3.exe`.
-- The previous build-time extraction approach (unpacking `app-64.7z`) is commented out in `pkgs/dmm-game-player/default.nix`.
