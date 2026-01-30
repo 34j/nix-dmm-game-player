@@ -20,6 +20,7 @@ or
         # you should already have something like this
         # nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
         dmm-game-player.url = "github:34j/nix-dmm-game-player";
+        dmm-game-player.inputs.nixpkgs.follows = "nixpkgs";
     };
     # you should already have something like this
     # outputs = {self, nixpkgs, ...}@inputs: {
