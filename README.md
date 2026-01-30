@@ -67,6 +67,7 @@ This will:
 - Creates a Wine prefix in `~/.local/share/dmm-game-player`, which could be overridden by setting the `$WINEPREFIX` environment variable.
 - Install DMM Game Player if no `DMMGamePlayer.exe` is found in the Wine prefix.
 - Launch the installed `DMMGamePlayer.exe`.
+  - You need to log in with your DMM account to use it. The `dmm-game-player` package includes a `desktopItem` to pass login information from your native (Linux) browser to the Wine application.
 
 ## Advanced usage
 
