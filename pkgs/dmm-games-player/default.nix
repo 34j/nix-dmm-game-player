@@ -74,14 +74,16 @@ let
       done
 
       build() {
-        printf '\e[1;33m%s\e[0m\n' "DMM Game Player: Initializing Wine prefix"
+        # Initialize the Wine prefix (creates drive_c, registry, etc.)
+        # and set the Windows version that Wine should emulate.
         mkdir -p "$WINEPREFIX"
         wineboot -u
         winecfg /v win10
       }
 
       run_installer() {
-        printf '\e[1;33m%s\e[0m\n' "DMM Game Player: Running installer ${src}"
+        # Run the installer (GUI).
+        # This is used on first launch and by the `install` subcommand.
         wine "$installer"
       }
 
@@ -91,7 +93,7 @@ let
           return 0
         fi
 
-        printf '\e[1;33m%s\e[0m\n' "DMM Game Player: Not installed"
+        printf '\e[1;33m%s\e[0m\n' "DMM Game Player: Not installed, running installer..."
         run_installer
       }
 
@@ -100,6 +102,16 @@ let
         uri="$1"
         install_if_needed
         WINEDEBUG=-all wine start "$uri"
+      }
+
+      run_app() {
+        printf '\e[1;32m%s\e[0m\n' "DMM Game Player: Launching DMM Game Player"
+        exe_path="$(find "$WINEPREFIX/drive_c" -type f -iname 'DMMGamePlayer.exe' 2>/dev/null | head -n 1 || true)"
+        if [ -z "$exe_path" ]; then
+          echo "Installed DMMGamePlayer.exe not found under $WINEPREFIX/drive_c" >&2
+          exit 1
+        fi
+        wine "$exe_path" "$@"
       }
 
       case "${"$"}{1:-}" in
@@ -139,13 +151,7 @@ let
               ;;
 
             *)
-              printf '\e[1;32m%s\e[0m\n' "DMM Game Player: Launching DMM Game Player"
-              exe_path="$(find "$WINEPREFIX/drive_c" -type f -iname 'DMMGamePlayer.exe' 2>/dev/null | head -n 1 || true)"
-              if [ -z "$exe_path" ]; then
-                echo "Installed DMMGamePlayer.exe not found under $WINEPREFIX/drive_c" >&2
-                exit 1
-              fi
-              wine "$exe_path" "$@"
+              run_app "$@"
               ;;
 
           esac
@@ -153,6 +159,7 @@ let
 
       esac
 
+      # Shut down background Wine processes started by this run.
       wineserver -k
     '';
   };
