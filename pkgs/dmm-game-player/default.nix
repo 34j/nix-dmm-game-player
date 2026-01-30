@@ -59,105 +59,127 @@ let
     };
 
     text = ''
-      set -euo pipefail
+            set -euo pipefail
 
-      # Usage:
-      # - dmm-game-player                 : ensure installed, then launch the EXE
-      # - dmm-game-player install         : rerun the installer (GUI) and refresh exe path
-      # - dmm-game-player uri <URI>       : forward URI to Wine (native-browser login flow)
+            usage() {
+              cat <<'USAGE'
+      Usage:
+        dmm-game-player
+        dmm-game-player install
+        dmm-game-player uri <URI>
+        dmm-game-player eval <cmd...>
+        dmm-game-player -h|--help
 
-      # The wine prefix to used, may be overridden by setting $WINEPREFIX environment variable.
-      export WINEPREFIX="${"$"}{WINEPREFIX:-$HOME/.nix-wine/${pname}}"
+      Commands:
+        (default)          Ensure installed, then launch the app
+        install            Re-run the installer (GUI)
+        uri <URI>          Forward a dmmgameplayer: URI via `wine start`
+        eval <cmd...>      Run a command without Wine
 
-      # The installer is fetched by Nix and stored in /nix/store .
-      installer="${src}"
+      Env:
+        WINEPREFIX         Override Wine prefix location
+      USAGE
+            }
 
-      for var in WINEPREFIX WINEARCH; do
-        printf '\e[1;35m%s: \e[0m%s\n' "$var" "${"$"}{!var:-""}"
-      done
+            case "${"$"}{1:-}" in
+              -h|--help)
+                usage
+                exit 0
+                ;;
+            esac
 
-      build() {
-        printf '\e[1;33m%s\e[0m\n' "DMM Game Player: Initializing Wine prefix"
-        mkdir -p "$WINEPREFIX"
-        wineboot -u
-        winecfg /v win10
-      }
+            # The wine prefix to used, may be overridden by setting $WINEPREFIX environment variable.
+            export WINEPREFIX="${"$"}{WINEPREFIX:-$HOME/.nix-wine/${pname}}"
 
-      run_installer() {
-        printf '\e[1;33m%s\e[0m\n' "DMM Game Player: Running installer ${src}"
-        wine "$installer"
-        wineserver -k
-      }
+            # The installer is fetched by Nix and stored in /nix/store .
+            installer="${src}"
 
-      install_if_needed() {
-        if find "$WINEPREFIX/drive_c" -type f -iname 'DMMGamePlayer.exe' -print -quit 2>/dev/null | grep -q .; then
-          printf '\e[1;32m%s\e[0m\n' "DMM Game Player: Already installed"
-          return 0
-        fi
+            for var in WINEPREFIX WINEARCH; do
+              printf '\e[1;35m%s: \e[0m%s\n' "$var" "${"$"}{!var:-""}"
+            done
 
-        printf '\e[1;33m%s\e[0m\n' "DMM Game Player: Not installed"
-        run_installer
-      }
+            build() {
+              printf '\e[1;33m%s\e[0m\n' "DMM Game Player: Initializing Wine prefix"
+              mkdir -p "$WINEPREFIX"
+              wineboot -u
+              winecfg /v win10
+            }
 
-      handle_uri() {
-        # Forward a URI (e.g. dmmgameplayer://...) into the Windows side.
-        uri="$1"
-        install_if_needed
-        WINEDEBUG=-all wine start "$uri"
-      }
+            run_installer() {
+              printf '\e[1;33m%s\e[0m\n' "DMM Game Player: Running installer ${src}"
+              wine "$installer"
+              wineserver -k
+            }
 
-      case "${"$"}{1:-}" in
-        install)
-          if [ ! -d "$WINEPREFIX" ]; then
-            build
-          fi
-          run_installer
-          ;;
-
-        uri)
-          if [ "${"$"}#" -lt 2 ]; then
-            echo "Usage: ${pname} uri <URI>" >&2
-            exit 2
-          fi
-
-          if [ ! -d "$WINEPREFIX" ]; then
-            build
-          fi
-
-          handle_uri "$2"
-          ;;
-
-        *)
-          # If the prefix directory doesn't exist at all, create/initialize it.
-          if [ ! -d "$WINEPREFIX" ]; then
-            build
-          fi
-
-          # Ensure the app is installed (runs installer on first launch).
-          install_if_needed
-
-          case "${"$"}{1:-}" in
-            eval)
-              shift
-              "$@"
-              ;;
-
-            *)
-              printf '\e[1;32m%s\e[0m\n' "DMM Game Player: Launching DMM Game Player"
-              exe_path="$(find "$WINEPREFIX/drive_c" -type f -iname 'DMMGamePlayer.exe' 2>/dev/null | head -n 1 || true)"
-              if [ -z "$exe_path" ]; then
-                echo "Installed DMMGamePlayer.exe not found under $WINEPREFIX/drive_c" >&2
-                exit 1
+            install_if_needed() {
+              if find "$WINEPREFIX/drive_c" -type f -iname 'DMMGamePlayer.exe' -print -quit 2>/dev/null | grep -q .; then
+                printf '\e[1;32m%s\e[0m\n' "DMM Game Player: Already installed"
+                return 0
               fi
-              wine "$exe_path" "$@"
-              ;;
 
-          esac
-          ;;
+              printf '\e[1;33m%s\e[0m\n' "DMM Game Player: Not installed"
+              run_installer
+            }
 
-      esac
+            handle_uri() {
+              # Forward a URI (e.g. dmmgameplayer://...) into the Windows side.
+              uri="$1"
+              install_if_needed
+              WINEDEBUG=-all wine start "$uri"
+            }
 
-      wineserver -k
+            case "${"$"}{1:-}" in
+              install)
+                if [ ! -d "$WINEPREFIX" ]; then
+                  build
+                fi
+                run_installer
+                ;;
+
+              uri)
+                if [ "${"$"}#" -lt 2 ]; then
+                  echo "Usage: ${pname} uri <URI>" >&2
+                  exit 2
+                fi
+
+                if [ ! -d "$WINEPREFIX" ]; then
+                  build
+                fi
+
+                handle_uri "$2"
+                ;;
+
+              *)
+                # If the prefix directory doesn't exist at all, create/initialize it.
+                if [ ! -d "$WINEPREFIX" ]; then
+                  build
+                fi
+
+                # Ensure the app is installed (runs installer on first launch).
+                install_if_needed
+
+                case "${"$"}{1:-}" in
+                  eval)
+                    shift
+                    "$@"
+                    ;;
+
+                  *)
+                    printf '\e[1;32m%s\e[0m\n' "DMM Game Player: Launching DMM Game Player"
+                    exe_path="$(find "$WINEPREFIX/drive_c" -type f -iname 'DMMGamePlayer.exe' 2>/dev/null | head -n 1 || true)"
+                    if [ -z "$exe_path" ]; then
+                      echo "Installed DMMGamePlayer.exe not found under $WINEPREFIX/drive_c" >&2
+                      exit 1
+                    fi
+                    wine "$exe_path" "$@"
+                    ;;
+
+                esac
+                ;;
+
+            esac
+
+            wineserver -k
     '';
   };
 
