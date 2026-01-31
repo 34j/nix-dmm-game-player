@@ -1,8 +1,6 @@
 # nix-dmm-game-player
 
-DMM Game Player (Windows app) packaged as a Nix flake and run via Wine.
-
-This flake intentionally **runs the upstream installer at first launch** (inside the Wine prefix) and then launches the installed `DMMGamePlayer.exe`.
+DMM Game Player (Windows app) packaged as a Nix flake.
 
 ## Installation
 
@@ -65,10 +63,12 @@ dmm-game-player
 
 This will:
 
-- Creates a Wine prefix in `~/.local/share/dmm-game-player`, which could be overridden by setting the `$WINEPREFIX` environment variable.
+- Creates a Wine prefix in `~/.local/share/dmm-game-player`
+  - Could be overridden by setting the `$WINEPREFIX` environment variable
 - Install DMM Game Player if no `DMMGamePlayer.exe` is found in the Wine prefix.
 - Launch the installed `DMMGamePlayer.exe`.
-  - You need to log in with your DMM account to use it. The `dmm-game-player` package includes a `desktopItem` to pass login information from your native (Linux) browser to the Wine application.
+  - You may need to log in with your DMM account.
+    - The `dmm-game-player` package includes a `desktopItem` to pass login information from your native (Linux) browser to the Wine application.
 
 ## Advanced usage
 

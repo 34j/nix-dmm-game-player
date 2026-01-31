@@ -183,22 +183,30 @@ let
     '';
   };
 
-  desktopItem = makeDesktopItem {
-    name = "dmm-game-player";
-    desktopName = "DMM Game Player";
-    exec = "dmm-game-player uri %u";
-    type = "Application";
-    terminal = false;
-    mimeTypes = [ "x-scheme-handler/dmmgameplayer" ];
-  };
+  desktopItems = [
+    (makeDesktopItem {
+      name = "dmm-game-player";
+      desktopName = "DMM Game Player";
+      exec = "dmm-game-player %U";
+      type = "Application";
+      terminal = false;
+    })
+
+    (makeDesktopItem {
+      name = "dmm-game-player-uri-handler";
+      desktopName = "DMM Game Player (URI Handler)";
+      exec = "dmm-game-player uri %u";
+      type = "Application";
+      terminal = false;
+      mimeTypes = [ "x-scheme-handler/dmmgameplayer" ];
+    })
+
+  ];
 in
 {
   dmm-game-player = symlinkJoin {
     inherit pname version;
-    paths = [
-      runner
-      desktopItem
-    ];
+    paths = [ runner ] ++ desktopItems;
     meta = with lib; {
       description = "DMM Game Player (Windows app) wrapped for Wine";
       homepage = "https://game.dmm.com/";
