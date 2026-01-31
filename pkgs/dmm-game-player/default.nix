@@ -211,7 +211,6 @@ in
     inherit pname version;
     paths = [
       runner
-      icon
     ] ++ desktopItems;
     meta = with lib; {
       description = "DMM Game Player (Windows app) wrapped for Wine";
