@@ -196,7 +196,6 @@ let
       icon = icon;
       type = "Application";
     })
-
     (makeDesktopItem {
       name = "dmm-game-player-uri-handler";
       desktopName = "DMM Game Player (URI Handler)";
@@ -205,7 +204,6 @@ let
       type = "Application";
       mimeTypes = [ "x-scheme-handler/dmmgameplayer" ];
     })
-
   ];
 in
 {
