@@ -17,6 +17,11 @@ let
     sha256 = "3454b8d36073bc63ab2107372978929273a8fbd50a5eb81395ed969749075554";
   };
 
+  icon = fetchurl {
+    url = "https://player.games.dmm.com/favicon.ico";
+    sha256 = "0ck5ndb70lsas7a4a53h15ms8njyla96rbvdda273pwwg4wik77c";
+  };
+
   /*
     	app = stdenvNoCC.mkDerivation {
     		pname = "${pname}-app";
@@ -188,16 +193,16 @@ let
       name = "dmm-game-player";
       desktopName = "DMM Game Player";
       exec = "dmm-game-player %U";
+      icon = icon;
       type = "Application";
-      terminal = false;
     })
 
     (makeDesktopItem {
       name = "dmm-game-player-uri-handler";
       desktopName = "DMM Game Player (URI Handler)";
       exec = "dmm-game-player uri %u";
+      icon = icon;
       type = "Application";
-      terminal = false;
       mimeTypes = [ "x-scheme-handler/dmmgameplayer" ];
     })
 
@@ -206,7 +211,10 @@ in
 {
   dmm-game-player = symlinkJoin {
     inherit pname version;
-    paths = [ runner ] ++ desktopItems;
+    paths = [
+      runner
+      icon
+    ] ++ desktopItems;
     meta = with lib; {
       description = "DMM Game Player (Windows app) wrapped for Wine";
       homepage = "https://game.dmm.com/";
