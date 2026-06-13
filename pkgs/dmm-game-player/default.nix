@@ -4,7 +4,7 @@
   makeDesktopItem,
   symlinkJoin,
   writeShellApplication,
-  wineWowPackages,
+  wineWow64Packages,
   winetricks,
 }:
 
@@ -54,8 +54,8 @@ let
     runtimeInputs = [
       # https://github.com/NixOS/nixpkgs/blob/e060786c7bca0404f2a5ba35ffaa4b9b93bc48a6/pkgs/top-level/wine-packages.nix#L57
       # "full" is larger than "waylandFull"
-      wineWowPackages.full
-      wineWowPackages.fonts
+      wineWow64Packages.full
+      wineWow64Packages.fonts
       winetricks
     ];
 
