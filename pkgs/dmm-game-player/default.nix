@@ -134,6 +134,8 @@ let
               WINEDEBUG=-all wine start "$uri"
             }
 
+            winetricks powershell
+
             case "${"$"}{1:-}" in
               install)
                 if [ ! -d "$WINEPREFIX" ]; then
