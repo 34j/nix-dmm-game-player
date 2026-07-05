@@ -71,6 +71,7 @@ let
       Usage:
         dmm-game-player
         dmm-game-player install
+        dmm-game-player uninstall
         dmm-game-player uri <URI>
         dmm-game-player eval <cmd...>
         dmm-game-player -h|--help
@@ -78,6 +79,7 @@ let
       Commands:
         (default)          Ensure installed, then launch the app
         install            Re-run the installer (GUI)
+        uninstall          Remove the Wine prefix
         uri <URI>          Forward a dmmgameplayer: URI via `wine start`
         eval <cmd...>      Run a command without Wine
 
@@ -108,6 +110,7 @@ let
               mkdir -p "$WINEPREFIX"
               wineboot -u
               winecfg /v win10
+              winetricks powershell
             }
 
             run_installer() {
@@ -134,8 +137,6 @@ let
               WINEDEBUG=-all wine start "$uri"
             }
 
-            winetricks powershell
-
             case "${"$"}{1:-}" in
               install)
                 if [ ! -d "$WINEPREFIX" ]; then
@@ -143,6 +144,16 @@ let
                 fi
                 run_installer
                 ;;
+
+              uninstall)
+                if [ -d "$WINEPREFIX" ]; then
+                  printf '\e[1;33m%s\e[0m\n' "DMM Game Player: Removing Wine prefix $WINEPREFIX"
+                  rm -rf "$WINEPREFIX"
+                  printf '\e[1;32m%s\e[0m\n' "DMM Game Player: Uninstalled"
+                else
+                  printf '\e[1;33m%s\e[0m\n' "DMM Game Player: Nothing to uninstall (no prefix found at $WINEPREFIX)"
+                fi
+              ;;
 
               uri)
                 if [ "${"$"}#" -lt 2 ]; then
