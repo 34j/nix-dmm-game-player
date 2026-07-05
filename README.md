@@ -55,6 +55,9 @@ or `Home Manager`:
 }
 ```
 
+If you clock `ログイン` in the DMM Game Player, native (Linux) browser will open.
+Select `DMM Game Player (URI Handler)`, or if it does not work, right click the `アプリを開く` button and copy the link, then run `dmm-game-player uri dmmgameplayer://view/page?code=...` to open the page in the DMM Game Player, where `dmmgameplayer://view/page?code=...` is the code from the link you copied.
+
 ## Usage
 
 ```shell

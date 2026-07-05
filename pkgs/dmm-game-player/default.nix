@@ -129,6 +129,7 @@ let
             handle_uri() {
               # Forward a URI (e.g. dmmgameplayer://...) into the Windows side.
               uri="$1"
+              printf '\e[1;33m%s\e[0m\n' "DMM Game Player: Forwarding URI to Wine: $uri"
               install_if_needed
               WINEDEBUG=-all wine start "$uri"
             }
